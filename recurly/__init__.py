@@ -1471,6 +1471,48 @@ class CreditPayment(Resource):
         'voided_at',
     )
 
+class DownloadExportFile(Resource):
+
+    """Export file download url for a given date and filename."""
+
+    nodename = 'export_file'
+
+    attributes = (
+        'expires_at',
+        'download_url'
+    )
+
+class ExportFile(Resource):
+
+    """Export files available for a given date."""
+
+    nodename = 'export_file'
+    collection_path = 'export_files'
+
+    attributes = (
+        'name',
+        'md5sum'
+    )
+
+    def get_export(self, date):
+        response = self.http_request(self._url, 'GET')
+        if response.status != 200:
+            self.raise_http_error(response)
+
+        response_xml = response.read()
+        logging.getLogger('recurly.http.response').debug(response_xml)
+        elem = ElementTree.fromstring(response_xml)
+        return ExportFile.from_element(elem)
+
+class ExportDate(Resource):
+
+    """Exports available for given dates."""
+
+    nodename = 'export_date'
+    collection_path = 'export_dates'
+
+    attributes = ('date')
+
 Resource._learn_nodenames(locals().values())
 
 
