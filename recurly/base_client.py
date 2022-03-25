@@ -11,6 +11,9 @@ from pydoc import locate
 import urllib.parse
 from datetime import datetime
 from enum import Enum
+import certifi
+import ssl
+
 
 PORT = 443
 BINARY_TYPES = ["application/pdf"]
@@ -41,9 +44,9 @@ class BaseClient:
                 )
 
             api_host = API_HOSTS[options["region"]]
-
+        context = ssl.create_default_context(cafile=certifi.where())
         self.__conn = http.client.HTTPSConnection(
-            api_host, PORT, timeout=actual_timeout
+            api_host, PORT, timeout=actual_timeout, context=context
         )
 
     def _make_request(self, method, path, body, **options):
